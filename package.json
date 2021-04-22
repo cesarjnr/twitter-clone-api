@@ -5,7 +5,7 @@
   "author": "César Júnior",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon src/app.ts",
     "build": "tsc"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "objection": "^2.2.15",
     "pg": "^8.6.0",
     "redis": "^3.1.1",
+    "reflect-metadata": "^0.1.13",
     "typedi": "^0.10.0"
   },
   "devDependencies": {
