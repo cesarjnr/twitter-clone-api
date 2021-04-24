@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { app } from './loaders';
 
 const startServer = async () => {
