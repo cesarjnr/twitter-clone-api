@@ -14,6 +14,6 @@ const databaseLoader = (): Knex => {
       database: config.database.name
     }
   });
-};
+}
 
 export default databaseLoader;

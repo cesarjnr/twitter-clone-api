@@ -6,7 +6,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "migration:create": "knex migrate:make $1",
+    "migration:latest": "knex migrate:latest --verbose",
+    "migration:rollback": "knex migrate:rollback --verbose"
   },
   "dependencies": {
     "dotenv": "^8.2.0",

@@ -12,6 +12,6 @@ const init = async (app: Express): Promise<void> => {
   // app.use(json());
   // await typediLoader(redisClient);
   // routesLoader(app);
-};
+}
 
 export default init;

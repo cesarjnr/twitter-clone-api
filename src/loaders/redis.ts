@@ -7,6 +7,6 @@ const redisClientLoader = (): redis.RedisClient => {
     host: config.redis.host,
     port: config.redis.port
   });
-};
+}
 
 export default redisClientLoader;
