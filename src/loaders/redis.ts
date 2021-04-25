@@ -1,5 +1,12 @@
 import redis from 'redis';
 
-const redisClient = redis.createClient();
+import config from '../config';
 
-export { redisClient };
+const redisClientLoader = (): redis.RedisClient => {
+  return redis.createClient({
+    host: config.redis.host,
+    port: config.redis.port
+  });
+};
+
+export default redisClientLoader;

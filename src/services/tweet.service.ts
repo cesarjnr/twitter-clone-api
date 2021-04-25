@@ -1,14 +1,25 @@
-import { Service, Inject } from "typedi";
+// import { Service, Inject } from 'typedi';
 
-import { CacheServiceInterface } from '../types';
+// import { RedisService } from './redis.service';
 
-@Service()
-export class TweetService {
-  private cacheService: CacheServiceInterface;
+// @Service('tweetService')
+// export class TweetService {
+//   private redisService: RedisService;
 
-  public constructor(
-    @Inject('cacheService') cacheService: CacheServiceInterface
-  ) {
-    this.cacheService = cacheService;
-  }
-}
+//   public constructor(
+//     @Inject('redisService') redisService: RedisService
+//   ) {
+//     this.redisService = redisService;
+//   }
+
+//   public async create(data: any): Promise<boolean> {
+//     const { user_id, ...rest } = data;
+
+//     await this.redisService.bulkSet([
+//       `user:${String(user_id)}:timeline`, 'test 1',
+//       `user:2:timeline`, 'test 2'
+//     ]);
+
+//     return true;
+//   }
+// }
