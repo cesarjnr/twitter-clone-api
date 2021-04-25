@@ -1,8 +1,17 @@
-import { Container } from 'typedi';
+import { Express, /* json */ } from 'express';
 
-import { app } from './fastify';
-import { redisClient } from './redis';
+import databaseLoader from './database';
+// import redisClientLoader from './redis';
+// import typediLoader from './typedi';
+// import routesLoader from './routes';
 
-Container.set('redisClient', redisClient);
+const init = async (app: Express): Promise<void> => {
+  // const redisClient = redisClientLoader();
 
-export { app };
+  databaseLoader();
+  // app.use(json());
+  // await typediLoader(redisClient);
+  // routesLoader(app);
+};
+
+export default init;
