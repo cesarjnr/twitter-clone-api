@@ -1,16 +1,18 @@
 import 'reflect-metadata';
+import express from 'express';
 
-import { app } from './loaders';
+import './config';
+import init from './loaders';
 
 const startServer = async () => {
-  app.get('/', (request, reply) => {
-    reply.send({ hello: 'world' });
-  });
+  const app = express();
 
   try {
-    await app.listen(3000);
+    await init(app);
+    app.listen(3000);
+    console.log('App running on port 3000...');
   } catch (err) {
-    app.log.error(err);
+    console.log(`Fatal error: ${err}`);
     process.exit(1);
   }
 };
