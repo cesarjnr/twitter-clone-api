@@ -1,12 +1,12 @@
-// import Container from 'typedi';
-// import { Express } from 'express';
+import Container from 'typedi';
+import { Express } from 'express';
 
-// import { TweetController } from "../controllers/tweet.controller";
+import { UserController } from '../controllers/UserController';
 
-// const routesLoader = (app: Express): void => {
-//   const tweetController = Container.get<TweetController>('tweetController');
+const routesLoader = (app: Express): void => {
+  const userController = Container.get<UserController>('userController');
 
-//   app.post('/tweets', tweetController.create.bind(tweetController));
-// };
+  app.post('/users', userController.create.bind(userController));
+};
 
-// export default routesLoader;
+export default routesLoader;
