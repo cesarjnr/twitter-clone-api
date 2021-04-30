@@ -13,7 +13,8 @@ export async function up(knex: Knex): Promise<void> {
       table
         .string('username', 15)
         .unique()
-        .notNullable();
+        .notNullable()
+        .comment('Characters preceeded by @');
       table.string('bio', 255);
       table.string('profile_picture_url', 255);
       table.string('background_picture_url', 255);
