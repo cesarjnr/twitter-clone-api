@@ -5,6 +5,7 @@ export const createUserValidatorSchema = Joi
   .object({
     name: Joi
       .string()
+      .max(50)
       .required(),
 
     email: Joi
@@ -16,14 +17,17 @@ export const createUserValidatorSchema = Joi
 
     password: Joi
       .string()
+      .min(6)
+      .max(16)
       .required(),
 
-    dateOfBirth: Joi
+    date_of_birth: Joi
       .date()
       .required(),
 
     username: Joi
       .string()
+      .max(15)
       .required()
   })
   .xor('email', 'phone');
@@ -34,14 +38,14 @@ export class User extends Model {
   email?: string;
   phone?: string;
   password!: string;
-  dateOfBirth!: Date;
+  date_of_birth!: Date;
   username!: string;
   bio?: string;
-  profilePictureUrl?: string;
-  backgroundPictureUrl?: string;
+  profile_picture_url?: string;
+  background_picture_url?: string;
   location?: string;
-  createdAt!: Date;
-  disabledAt?: Date;
+  created_at!: Date;
+  disabled_at?: Date;
 
   static get tableName() {
     return 'users';
