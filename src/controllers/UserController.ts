@@ -14,8 +14,17 @@ export class UserController {
   }
 
   public async create(req: Request, res: Response): Promise<void> {
-    const user = await this.userService.create(req.body);
+    try {
+      const user = await this.userService.create(req.body);
 
-    res.json(user);
+      res.status(201).json(user);
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Internal Server Error',
+        message: 'Something went wrong. Please try again in a few minutes'
+      });
+    }
   }
 }
