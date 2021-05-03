@@ -1,20 +1,25 @@
 import 'reflect-metadata';
-import express from 'express';
+import express, { Express, json } from 'express';
+import { createConnection } from 'typeorm';
 
-import './config';
-import init from './loaders';
+import routes from './routes';
 
-const startServer = async () => {
-  const app = express();
+class Application {
+  public express: Express;
 
-  try {
-    await init(app);
-    app.listen(3000);
-    console.log('App running on port 3000...');
-  } catch (err) {
-    console.log(`Fatal error: ${err}`);
-    process.exit(1);
+  public constructor() {
+    this.express = express();
   }
-};
 
-startServer();
+  public async init(): Promise<void> {
+    await createConnection();
+
+    require('./dependencies');
+
+    this.express.use(json());
+
+    routes(this.express);
+  }
+}
+
+export default Application;

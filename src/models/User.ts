@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Model } from 'objection';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 export const createUserValidatorSchema = Joi
   .object({
@@ -21,7 +21,7 @@ export const createUserValidatorSchema = Joi
       .max(16)
       .required(),
 
-    date_of_birth: Joi
+    dateOfBirth: Joi
       .date()
       .required(),
 
@@ -32,22 +32,60 @@ export const createUserValidatorSchema = Joi
   })
   .xor('email', 'phone');
 
-export class User extends Model {
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn()
   id!: number;
-  name!: string;
-  email?: string;
-  phone?: string;
-  password!: string;
-  date_of_birth!: Date;
-  username!: string;
-  bio?: string;
-  profile_picture_url?: string;
-  background_picture_url?: string;
-  location?: string;
-  created_at!: Date;
-  disabled_at?: Date;
 
-  static get tableName() {
-    return 'users';
+  @Column()
+  name!: string;
+
+  @Column()
+  email?: string;
+
+  @Column()
+  phone?: string;
+
+  @Column()
+  password!: string;
+
+  @Column({ name: 'date_of_birth' })
+  dateOfBirth!: Date;
+
+  @Column()
+  username!: string;
+
+  @Column()
+  bio?: string;
+
+  @Column({ name: 'profile_picture_url' })
+  profilePictureUrl?: string;
+
+  @Column({ name: 'background_picture_url' })
+  backgroundPictureUrl?: string;
+
+  @Column()
+  location?: string;
+
+  @Column({ name: 'created_at' })
+  createdAt!: Date;
+
+  @Column({ name: 'disabled_at' })
+  disabledAt?: Date;
+
+  public constructor(
+    name: string,
+    password: string,
+    dateOfBirth: Date,
+    username: string,
+    email?: string,
+    phone?: string
+  ) {
+    this.name = name;
+    this.password = password;
+    this.dateOfBirth = dateOfBirth;
+    this.username = username;
+    this.email = email;
+    this.phone = phone;
   }
 }

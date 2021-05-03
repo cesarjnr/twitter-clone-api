@@ -1,26 +1,35 @@
-// import { Inject, Service } from 'typedi';
-// import { RedisClient } from 'redis';
-// import { promisify } from 'util';
+import _ from 'lodash';
+import { Service, Inject } from 'typedi';
+import { RedisClient } from 'redis';
+import { promisify } from 'util';
 
-// interface PromisifiedRedisClient {
-//   bulkSet(keysAndValues: string[]): Promise<boolean>;
-// }
+interface PromisifiedRedisClient {
+  hmset(args: [string, ...(string | number)[]]): Promise<string>
+}
 
-// @Service('cacheService')
-// export class RedisService {
-//   private redisClient: PromisifiedRedisClient;
+type SetHashData = {
+  [key: string]: string | number;
+}
 
-//   public constructor(
-//     @Inject('redisClient') redisClient: RedisClient
-//   ) {
-//     this.redisClient = {
-//       bulkSet: promisify<string[], boolean>(redisClient.mset).bind(redisClient)
-//     };
-//   }
+@Service('redisService')
+export class RedisService {
+  private redisClient: PromisifiedRedisClient;
 
-//   public async bulkSet(keysAndValues: string[]): Promise<boolean> {
-//     const result = await this.redisClient.bulkSet(keysAndValues);
+  public constructor(
+    @Inject('redisClient') redisClient: RedisClient
+  ) {
+    this.redisClient = {
+      hmset: promisify<[string, ...(string | number)[]], string>(redisClient.hmset).bind(redisClient)
+    };
+  }
 
-//     return result;
-//   }
-// }
+  private prepareHashData(data: SetHashData): string[] {
+
+  }
+
+  public async setHash(key: string, data: SetHashData): Promise<void> {
+    const keyValuesStringArray = _.flatten(Object.entries(data));
+
+    await this.redisClient.hmset([key, ...keyValuesStringArray]);
+  }
+}
