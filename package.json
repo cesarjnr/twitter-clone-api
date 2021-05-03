@@ -5,26 +5,27 @@
   "author": "César Júnior",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/app.ts",
+    "dev": "nodemon",
     "build": "tsc",
-    "migration:create": "knex migrate:make $1",
-    "migration:latest": "knex migrate:latest --verbose",
-    "migration:rollback": "knex migrate:rollback --verbose"
+    "migration:create": "tsc && node_modules/.bin/typeorm migration:create -n $1",
+    "migration:run": "tsc && node_modules/.bin/typeorm migration:run",
+    "migration:revert": "tsc && node_modules/.bin/typeorm migration:revert"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^17.4.0",
-    "knex": "^0.95.4",
-    "objection": "^2.2.15",
+    "lodash": "^4.17.21",
     "pg": "^8.6.0",
     "redis": "^3.1.1",
     "reflect-metadata": "^0.1.13",
-    "typedi": "^0.10.0"
+    "typedi": "^0.10.0",
+    "typeorm": "^0.2.32"
   },
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
+    "@types/lodash": "^4.14.168",
     "@types/redis": "^2.8.28",
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
