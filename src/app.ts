@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import express, { Express, json } from 'express';
 import { createConnection } from 'typeorm';
 
-import routes from './routes';
+import Routes from './routes';
 
 class Application {
   public express: Express;
@@ -17,8 +17,7 @@ class Application {
     require('./dependencies');
 
     this.express.use(json());
-
-    routes(this.express);
+    this.express.use(Routes.setRoutes());
   }
 }
 
