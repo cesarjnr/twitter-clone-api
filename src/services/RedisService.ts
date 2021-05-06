@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Service, Inject } from 'typedi';
 import { RedisClient } from 'redis';
 import { promisify } from 'util';
@@ -7,8 +6,8 @@ interface PromisifiedRedisClient {
   hmset(args: [string, ...(string | number)[]]): Promise<string>
 }
 
-type SetHashData = {
-  [key: string]: string | number;
+type HashData<T> ={
+  [key in keyof T]: string | number;
 }
 
 @Service('redisService')
@@ -23,13 +22,26 @@ export class RedisService {
     };
   }
 
-  private prepareHashData(data: SetHashData): string[] {
+  private isHashValueNullOrUndefined(keyValueArray: [string, string | number]): boolean {
+    const value = keyValueArray[1];
 
+    if (value === null || value === undefined) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
-  public async setHash(key: string, data: SetHashData): Promise<void> {
-    const keyValuesStringArray = _.flatten(Object.entries(data));
+  private convertHashDataToArrayOfStrings<T>(data: HashData<T>): (string | number)[] {
+    return Object
+    .entries<string | number>(data)
+    .filter(this.isHashValueNullOrUndefined)
+    .flat();
+  }
 
-    await this.redisClient.hmset([key, ...keyValuesStringArray]);
+  public async setHash<T>(key: string, data: HashData<T>): Promise<void> {
+    const hashDataAsArrayOfStrings = this.convertHashDataToArrayOfStrings<T>(data);
+
+    await this.redisClient.hmset([key, ...hashDataAsArrayOfStrings]);
   }
 }

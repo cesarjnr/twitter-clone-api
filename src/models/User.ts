@@ -76,14 +76,14 @@ export class User {
   public constructor(
     name: string,
     password: string,
-    dateOfBirth: Date,
+    dateOfBirth: string,
     username: string,
     email?: string,
     phone?: string
   ) {
     this.name = name;
     this.password = password;
-    this.dateOfBirth = dateOfBirth;
+    this.dateOfBirth = new Date(dateOfBirth);
     this.username = username;
     this.email = email;
     this.phone = phone;

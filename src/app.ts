@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import express, { Express, json } from 'express';
 import { createConnection } from 'typeorm';
 
+import './config';
 import Routes from './routes';
 
 class Application {

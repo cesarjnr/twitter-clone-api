@@ -1,13 +1,13 @@
 import { Service, Inject } from 'typedi';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 
 import { User } from '../models/User';
 import { RedisService } from './RedisService';
 
-interface CreateUserDTO {
+interface UserCreationDTO {
   name: string;
   password: string;
-  dateOfBirth: Date;
+  dateOfBirth: string;
   username: string;
   email?: string;
   phone?: string;
@@ -26,7 +26,28 @@ export class UserService {
     this.redisService = redisService;
   }
 
-  public async create(requestPayload: CreateUserDTO): Promise<User> {
+  private async findUsingManager(manager: EntityManager, id: number): Promise<User> {
+    const user = await manager.findOneOrFail(User, id);
+
+    return user;
+  }
+
+  private async saveInCache(manager: EntityManager, id: number): Promise<void> {
+    const user = await this.findUsingManager(manager, id);
+    const hashKey = `user:${user.id}:data`;
+
+    await this.redisService.setHash<User>(
+      hashKey,
+      {
+        ...user,
+        dateOfBirth: user.dateOfBirth.getTime(),
+        createdAt: user.createdAt.getTime(),
+        disabledAt: user.disabledAt?.getTime()
+      }
+    );
+  }
+
+  public async create(requestPayload: UserCreationDTO): Promise<Partial<User>> {
     const user = new User(
       requestPayload.name,
       requestPayload.password,
@@ -35,9 +56,11 @@ export class UserService {
       requestPayload.email,
       requestPayload.phone
     );
-    await this.userRepository.save(user);
 
-    await this.redisService.setHash(`user:${user.id}:data`, user);
+    await this.userRepository.manager.transaction(async manager => {
+      await manager.save<User>(user);
+      await this.saveInCache(manager, user.id);
+    });
 
     return user;
   }
