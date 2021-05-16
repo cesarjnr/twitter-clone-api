@@ -9,7 +9,8 @@
     "build": "tsc",
     "migration:create": "tsc && node_modules/.bin/typeorm migration:create -n $1",
     "migration:run": "tsc && node_modules/.bin/typeorm migration:run",
-    "migration:revert": "tsc && node_modules/.bin/typeorm migration:revert"
+    "migration:revert": "tsc && node_modules/.bin/typeorm migration:revert",
+    "test": "jest --coverage"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
@@ -23,10 +24,14 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.11",
+    "@types/faker": "^5.5.5",
     "@types/jest": "^26.0.22",
     "@types/redis": "^2.8.28",
+    "date-fns": "^2.21.3",
+    "faker": "^5.5.3",
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
+    "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   }
