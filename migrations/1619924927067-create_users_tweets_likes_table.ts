@@ -1,20 +1,51 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
 export class createUsersTweetsLikesTable1619924927067 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      CREATE TABLE users_tweets_likes (
-        user_id INT NOT NULL REFERENCES users ON DELETE CASCADE,
-        tweet_id INT NOT NULL REFERENCES tweets ON DELETE CASCADE,
-        PRIMARY KEY (user_id, tweet_id)
-      );
-
-      CREATE INDEX users_tweets_likes_user_id_fkey ON users_tweets_likes (user_id);
-      CREATE INDEX users_tweets_likes_tweet_id_fkey ON users_tweets_likes (tweet_id);
-    `);
+    await queryRunner.createTable(new Table({
+      name: 'users_tweets_likes',
+      columns: [
+        {
+          name: 'user_id',
+          type: 'int',
+          isPrimary: true
+        },
+        {
+          name: 'tweet_id',
+          type: 'int',
+          isPrimary: true
+        }
+      ],
+      foreignKeys: [
+        {
+          name: 'FK_users_tweets_likes_users_user_id',
+          columnNames: ['user_id'],
+          referencedTableName: 'users',
+          referencedColumnNames: ['id'],
+          onDelete: 'CASCADE'
+        },
+        {
+          name: 'FK_users_tweets_likes_tweets_tweet_id',
+          columnNames: ['tweet_id'],
+          referencedTableName: 'tweets',
+          referencedColumnNames: ['id'],
+          onDelete: 'CASCADE'
+        }
+      ],
+      indices: [
+        {
+          name: 'FK_users_tweets_likes_user_id',
+          columnNames: ['user_id']
+        },
+        {
+          name: 'FK_users_tweets_likes_tweet_id',
+          columnNames: ['tweet_id']
+        }
+      ]
+    }));
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE users_tweets_likes;');
+    await queryRunner.dropTable('users_tweets_likes')
   }
 }
