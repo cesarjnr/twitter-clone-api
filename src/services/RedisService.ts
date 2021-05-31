@@ -2,16 +2,14 @@ import { Service, Inject } from 'typedi';
 import { RedisClient } from 'redis';
 import { promisify } from 'util';
 
+import { CacheService, HashData } from '../interfaces/CacheService';
+
 interface PromisifiedRedisClient {
   hmset(args: [string, ...(string | number)[]]): Promise<string>
 }
 
-type HashData<T> ={
-  [key in keyof T]: string | number;
-}
-
 @Service('redisService')
-export class RedisService {
+export class RedisService implements CacheService {
   private redisClient: PromisifiedRedisClient;
 
   public constructor(
@@ -22,26 +20,15 @@ export class RedisService {
     };
   }
 
-  private isHashValueNullOrUndefined(keyValueArray: [string, string | number]): boolean {
-    const value = keyValueArray[1];
+  public async setHashMap<T>(key: string, data: HashData<T>): Promise<void> {
+    const hashDataAsArrayOfStrings = this.convertHashDataToArrayOfStrings<T>(data);
 
-    if (value === null || value === undefined) {
-      return false;
-    } else {
-      return true;
-    }
+    await this.redisClient.hmset([key, ...hashDataAsArrayOfStrings]);
   }
 
   private convertHashDataToArrayOfStrings<T>(data: HashData<T>): (string | number)[] {
     return Object
-    .entries<string | number>(data)
-    .filter(this.isHashValueNullOrUndefined)
-    .flat();
-  }
-
-  public async setHash<T>(key: string, data: HashData<T>): Promise<void> {
-    const hashDataAsArrayOfStrings = this.convertHashDataToArrayOfStrings<T>(data);
-
-    await this.redisClient.hmset([key, ...hashDataAsArrayOfStrings]);
+      .entries<string | number>(data)
+      .flat();
   }
 }
