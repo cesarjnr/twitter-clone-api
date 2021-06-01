@@ -1,0 +1,13 @@
+version: "3"
+services:
+  twitter-clone-api:
+    build: .
+    ports:
+      - 3000:80
+    environment:
+      - TYPEORM_HOST=database
+      - REDIS_HOST=redis-server
+  database:
+    image: postgres:12
+  redis-server:
+    image: redis
