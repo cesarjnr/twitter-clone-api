@@ -3,6 +3,7 @@ import { Repository, EntityManager } from 'typeorm';
 
 import { User } from '../models/User';
 import { CacheService } from '../interfaces/CacheService';
+import { ObjectWithoutNullishValues, removeNullishValues } from '../utils/object';
 
 interface UserCreationDTO {
   name: string;
@@ -26,8 +27,8 @@ export class UserService {
     this.cacheService = redisService;
   }
 
-  public async create(requestPayload: UserCreationDTO): Promise<Partial<User>> {
-    const user = new User(
+  public async create(requestPayload: UserCreationDTO): Promise<User> {
+    let user = new User(
       requestPayload.name,
       requestPayload.password,
       requestPayload.dateOfBirth,
@@ -37,31 +38,44 @@ export class UserService {
     );
 
     await this.userRepository.manager.transaction(async manager => {
-      await manager.save<User>(user);
-      await this.saveInCache(manager, user.id);
+      user = await this.persistInDatabase(manager, user);
+
+      await this.saveInCache(user);
     });
 
     return user;
   }
 
-  private async saveInCache(manager: EntityManager, id: number): Promise<void> {
-    const user = await this.findUsingManager(manager, id);
-    const hashKey = `user:${user.id}:data`;
+  private async persistInDatabase(manager: EntityManager, user: User): Promise<User> {
+    const insertResult = await manager
+      .getRepository(User)
+      .createQueryBuilder()
+      .insert()
+      .values(user)
+      .returning("*")
+      .execute();
 
-    await this.cacheService.setHashMap<User>(
-      hashKey,
-      {
-        ...user,
-        dateOfBirth: user.dateOfBirth.getTime(),
-        createdAt: user.createdAt.getTime(),
-        disabledAt: user.disabledAt?.getTime()
-      }
-    );
+    return insertResult.generatedMaps[0] as User;
   }
 
-  private async findUsingManager(manager: EntityManager, id: number): Promise<User> {
-    const user = await manager.findOneOrFail(User, id);
+  private async saveInCache(user: User): Promise<void> {
+    const hashKey = `user:${user.id}:data`;
+    const preparedObj = this.prepareObjectForCaching(user);
 
-    return user;
+    await this.cacheService.setHashMap<ObjectWithoutNullishValues<User>>(hashKey, preparedObj);
+  }
+
+  private prepareObjectForCaching(user: User): ObjectWithoutNullishValues<User> {
+    const userWithoutNullishValues = removeNullishValues<User>(user);
+
+    if (user.disabledAt) {
+      userWithoutNullishValues.disabledAt = user.disabledAt.getTime();
+    }
+
+    return {
+      ...userWithoutNullishValues,
+      dateOfBirth: user.dateOfBirth.getTime(),
+      createdAt: user.createdAt.getTime()
+    };
   }
 }
