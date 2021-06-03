@@ -1,6 +1,6 @@
 FROM node:14
 
-WORKDIR /var/node/twitter-clone-api
+WORKDIR /var/node/twitter_clone_api
 
 ENV ENV=dev
 ENV PORT=3000
@@ -8,14 +8,14 @@ ENV TYPEORM_CONNECTION=postgres
 ENV TYPEORM_USERNAME=postgres
 ENV TYPEORM_PASSWORD=admin
 ENV TYPEORM_DATABASE=twitter
-ENV TYPEORM_MIGRATIONS=dist/migrations/*.js
-ENV TYPEORM_ENTITIES=dist/src/models/*.js
+ENV TYPEORM_MIGRATIONS=migrations/*.ts
+ENV TYPEORM_ENTITIES=src/models/*.ts
 ENV TYPEORM_LOGGING=true
+ENV TYPEORM_MIGRATIONS_RUN=true
 ENV REDIS_PORT=6379
 
-COPY migrations src *.json yarn.lock ./
+COPY . .
 
 RUN yarn
-RUN yarn migration:run
 
 CMD yarn dev

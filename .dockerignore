@@ -1,0 +1,10 @@
+.git/
+.vscode/
+coverage
+dist
+docs
+node_modules/
+tests/
+.env
+.gitignore
+jest.config.js
