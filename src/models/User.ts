@@ -1,5 +1,10 @@
 import Joi from 'joi';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn
+} from 'typeorm';
 
 export const createUserValidatorSchema = Joi
   .object({
@@ -38,40 +43,40 @@ export class User {
   id!: number;
 
   @Column()
-  name!: string;
+  name: string;
 
-  @Column()
-  email?: string;
+  @Column({ type: 'varchar' })
+  email?: string | null;
 
-  @Column()
+  @Column({ type: 'varchar' })
   phone?: string;
 
   @Column()
-  password!: string;
+  password: string;
 
   @Column({ name: 'date_of_birth' })
-  dateOfBirth!: Date;
+  dateOfBirth: Date;
 
   @Column()
-  username!: string;
+  username: string;
 
-  @Column()
-  bio?: string;
+  @Column({ type: 'varchar' })
+  bio?: string | null;
 
-  @Column({ name: 'profile_picture_url' })
-  profilePictureUrl?: string;
+  @Column({ name: 'profile_picture_url', type: 'varchar' })
+  profilePictureUrl?: string | null;
 
-  @Column({ name: 'background_picture_url' })
-  backgroundPictureUrl?: string;
+  @Column({ name: 'background_picture_url', type: 'varchar' })
+  backgroundPictureUrl?: string | null;
 
-  @Column()
-  location?: string;
+  @Column({ type: 'varchar' })
+  location?: string | null;
 
-  @Column({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @Column({ name: 'disabled_at' })
-  disabledAt?: Date;
+  @Column({ name: 'disabled_at', type: 'varchar' })
+  disabledAt?: Date | null;
 
   public constructor(
     name: string,
