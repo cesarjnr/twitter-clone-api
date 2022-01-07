@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectSchema } from 'joi';
-
-import { ValidationErrorItem } from 'joi';
+import { ObjectSchema, ValidationErrorItem } from 'joi';
 
 import { createUserValidatorSchema } from '../models/User';
 
