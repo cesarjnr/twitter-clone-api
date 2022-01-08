@@ -4,7 +4,6 @@ import { getRepository } from 'typeorm';
 
 import './services/RedisService';
 import './services/UserService';
-import './controllers/UserController';
 import config from './config';
 import { User } from './models/User';
 

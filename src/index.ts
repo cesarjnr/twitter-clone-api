@@ -1,14 +1,36 @@
-import Application from './app';
+import 'reflect-metadata';
+import express from 'express';
+import { createConnection } from 'typeorm';
 
-class Server {
+import config from './config';
+import graphqlServer from './graphql';
+import { importDatabaseDataToRedis } from './scripts/importDatabaseDataToRedis';
+
+class Application {
   static async init(): Promise<void> {
-    const app = new Application();
-    const port = process.env.PORT || 3000;
+    try {
+      const app = express();
 
-    await app.init();
-    app.express.listen(port);
-    console.log(`Application started on port ${port}!`);
+      await createConnection();
+
+      require('./dependencies');
+
+      // await this.runScripts();
+      await graphqlServer.start();
+      
+      graphqlServer.applyMiddleware({ app });
+      app.listen(config.common.port)
+      console.log(`Application started on port ${config.common.port}`);
+    } catch (error) {
+      console.error(`An error occured: ${error}`);
+    }
+  }
+
+  private async runScripts(): Promise<void> {
+    if (process.env.ENV === 'development') {
+      await importDatabaseDataToRedis();
+    }
   }
 }
 
-Server.init();
+Application.init();

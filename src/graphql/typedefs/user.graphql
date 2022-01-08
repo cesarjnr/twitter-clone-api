@@ -1,6 +1,6 @@
 # Types
 type User {
-  id: ID!
+  id: Int!
   name: String!
   email: String
   phone: String

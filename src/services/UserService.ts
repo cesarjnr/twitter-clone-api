@@ -21,10 +21,10 @@ export class UserService {
 
   public constructor(
     @Inject('userRepository') userRepository: Repository<User>,
-    @Inject('redisService') redisService: CacheService
+    @Inject('cacheService') cacheService: CacheService
   ) {
     this.userRepository = userRepository;
-    this.cacheService = redisService;
+    this.cacheService = cacheService;
   }
 
   public async create(requestPayload: UserCreationDTO): Promise<User> {
@@ -46,6 +46,18 @@ export class UserService {
     return user;
   }
 
+  public async find(id: number): Promise<User> {
+    const user = await this.cacheService.getHash<User>(`user:${id}:data`);
+
+    return {
+      ...user,
+      id: Number(user.id),
+      dateOfBirth: new Date(Number(user.dateOfBirth)),
+      createdAt: new Date(Number(user.createdAt)),
+      disabledAt: new Date(Number(user.disabledAt))
+    };
+  }
+
   private async persistInDatabase(manager: EntityManager, user: User): Promise<User> {
     const insertResult = await manager
       .getRepository(User)
@@ -62,7 +74,7 @@ export class UserService {
     const hashKey = `user:${user.id}:data`;
     const preparedObj = this.prepareObjectForCaching(user);
 
-    await this.cacheService.setHashMap<ObjectWithoutNullishValues<User>>(hashKey, preparedObj);
+    await this.cacheService.setHash<ObjectWithoutNullishValues<User>>(hashKey, preparedObj);
   }
 
   private prepareObjectForCaching(user: User): ObjectWithoutNullishValues<User> {

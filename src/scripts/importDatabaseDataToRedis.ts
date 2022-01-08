@@ -24,7 +24,7 @@ export const importDatabaseDataToRedis = async (): Promise<void> => {
     for (const user of usersWithoutNullishValues) {
       const hashKey = `user:${user.id}:data`;
 
-      await redisService.setHashMap(hashKey, user);
+      await redisService.setHash(hashKey, user);
     }
   } catch (error) {
     console.log(error);

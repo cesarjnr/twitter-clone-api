@@ -2,7 +2,7 @@ scalar Date
 
 type Query {
   # User
-  user(id: ID!): User
+  findUser(id: ID!): User
 }
 
 type Mutation {

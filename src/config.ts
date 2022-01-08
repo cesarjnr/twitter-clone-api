@@ -4,7 +4,8 @@ dotenv.config();
 
 const config = {
   common: {
-    env: process.env.ENV
+    env: process.env.ENV,
+    port: process.env.PORT
   },
   redis: {
     host: process.env.REDIS_HOST,
