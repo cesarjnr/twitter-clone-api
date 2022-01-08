@@ -1,32 +1,45 @@
 import 'reflect-metadata';
-import express from 'express';
+import express, { Express } from 'express';
 import { createConnection } from 'typeorm';
 
 import config from './config';
-import graphqlServer from './graphql';
+import logger from './utils/logger';
 import { importDatabaseDataToRedis } from './scripts/importDatabaseDataToRedis';
 
 class Application {
+  static app: Express;
+
   static async init(): Promise<void> {
     try {
-      const app = express();
+      this.app = express();
 
       await createConnection();
+      await import('./dependencies');
+      await this.runScripts();
+      await this.startGraphQlServer();
 
-      require('./dependencies');
+      this.app.listen(config.common.port);
 
-      // await this.runScripts();
-      await graphqlServer.start();
-      
-      graphqlServer.applyMiddleware({ app });
-      app.listen(config.common.port)
-      console.log(`Application started on port ${config.common.port}`);
+      logger.info({
+        label: 'StartApplication',
+        message: `Application started on port ${config.common.port}`
+      });
     } catch (error) {
-      console.error(`An error occured: ${error}`);
+      logger.error({
+        label: 'StartApplication',
+        message: error
+      });
     }
   }
 
-  private async runScripts(): Promise<void> {
+  static async startGraphQlServer(): Promise<void> {
+    const graphqlServer = (await import('./graphql')).default;
+
+    await graphqlServer.start();
+    graphqlServer.applyMiddleware({ app: this.app });
+  }
+
+  static async runScripts(): Promise<void> {
     if (process.env.ENV === 'development') {
       await importDatabaseDataToRedis();
     }
