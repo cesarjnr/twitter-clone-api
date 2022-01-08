@@ -1,32 +1,38 @@
 import Container from 'typedi';
 import { getRepository } from 'typeorm';
-import { format } from 'date-fns';
 
+import logger from '../utils/logger';
 import { removeNullishValues } from '../utils/object';
-import { RedisService } from '../services/RedisService';
+import { CacheService } from '../interfaces/CacheService';
 import { User } from '../models/User';
 
 export const importDatabaseDataToRedis = async (): Promise<void> => {
-  try {
-    const userRepository = getRepository(User);
-    const users = await userRepository.find();
-    const formattedUsers = users.map((user: any) => ({
-      ...user,
-      dateOfBirth: format(user.date_of_birth, 'yyyy-MM-dd'),
-      profilePictureUrl: user.profile_picture_url,
-      backgroundPictureUrl: user.background_picture_url,
-      createdAt: user.created_at.getTime(),
-      disabledAt: user.disabled_at?.getTime()
-    }));
-    const usersWithoutNullishValues = formattedUsers.map((user: any) => removeNullishValues(user));
-    const redisService = Container.get<RedisService>('redisService');
+  logger.info({
+    label: 'ImportDatabaseDataToRedis',
+    message: 'Getting users...'
+  });
 
-    for (const user of usersWithoutNullishValues) {
-      const hashKey = `user:${user.id}:data`;
+  const userRepository = getRepository(User);
+  const users = await userRepository.find();
+  const formattedUsers = users.map(user => ({
+    ...user,
+    dateOfBirth: user.dateOfBirth.getTime(),
+    profilePictureUrl: user.profilePictureUrl,
+    backgroundPictureUrl: user.backgroundPictureUrl,
+    createdAt: user.createdAt.getTime(),
+    disabledAt: user.disabledAt?.getTime()
+  }));
+  const usersWithoutNullishValues = formattedUsers.map((user: any) => removeNullishValues(user));
+  const cacheService = Container.get<CacheService>('cacheService');
 
-      await redisService.setHash(hashKey, user);
-    }
-  } catch (error) {
-    console.log(error);
+  logger.info({
+    label: 'ImportDatabaseDataToRedis',
+    message: 'Persisting users in cache...'
+  });
+
+  for (const user of usersWithoutNullishValues) {
+    const hashKey = `user:${user.id}:data`;
+
+    await cacheService.setHash(hashKey, user);
   }
 }
