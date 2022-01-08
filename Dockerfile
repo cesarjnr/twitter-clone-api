@@ -2,7 +2,7 @@ FROM node:14
 
 WORKDIR /var/node/twitter_clone_api
 
-ENV ENV=dev
+ENV ENV=development
 ENV PORT=3000
 ENV TYPEORM_CONNECTION=postgres
 ENV TYPEORM_USERNAME=postgres
