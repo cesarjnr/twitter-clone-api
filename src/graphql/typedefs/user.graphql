@@ -1,0 +1,26 @@
+# Types
+type User {
+  id: ID!
+  name: String!
+  email: String
+  phone: String
+  password: String!
+  dateOfBirth: Date!
+  username: String!
+  bio: String
+  profilePictureUrl: String
+  backgroundPictureUrl: String
+  location: String
+  createdAt: Date!
+  disabledAt: Date
+}
+
+# Inputs
+input UserCreateInput {
+  name: String!
+  email: String
+  phone: String
+  password: String!
+  dateOfBirth: Date!
+  username: String!
+}
