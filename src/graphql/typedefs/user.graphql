@@ -4,7 +4,6 @@ type User {
   name: String!
   email: String
   phone: String
-  password: String!
   dateOfBirth: Date!
   username: String!
   bio: String
@@ -16,7 +15,7 @@ type User {
 }
 
 # Inputs
-input UserCreateInput {
+input UserCreationInput {
   name: String!
   email: String
   phone: String

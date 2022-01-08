@@ -15,9 +15,9 @@ class Application {
   }
 
   public async init(): Promise<void> {
-    // await createConnection();
+    await createConnection();
 
-    // require('./dependencies');
+    require('./dependencies');
 
     // await this.runScripts();
 

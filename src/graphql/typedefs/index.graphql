@@ -7,5 +7,5 @@ type Query {
 
 type Mutation {
   # User
-  createUser(user: UserCreateInput!): User!
+  createUser(user: UserCreationInput!): User!
 }

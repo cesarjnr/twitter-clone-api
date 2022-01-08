@@ -5,7 +5,7 @@ import { User } from '../models/User';
 import { CacheService } from '../interfaces/CacheService';
 import { ObjectWithoutNullishValues, removeNullishValues } from '../utils/object';
 
-interface UserCreationDTO {
+export interface UserCreationDTO {
   name: string;
   password: string;
   dateOfBirth: string;
