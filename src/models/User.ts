@@ -1,41 +1,40 @@
-import Joi from 'joi';
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn
 } from 'typeorm';
 
-export const createUserValidatorSchema = Joi
-  .object({
-    name: Joi
-      .string()
-      .max(50)
-      .required(),
+// export const createUserValidatorSchema = Joi
+//   .object({
+//     name: Joi
+//       .string()
+//       .max(50)
+//       .required(),
 
-    email: Joi
-      .string()
-      .email(),
+//     email: Joi
+//       .string()
+//       .email(),
 
-    phone: Joi
-      .string(),
+//     phone: Joi
+//       .string(),
 
-    password: Joi
-      .string()
-      .min(6)
-      .max(16)
-      .required(),
+//     password: Joi
+//       .string()
+//       .min(6)
+//       .max(16)
+//       .required(),
 
-    dateOfBirth: Joi
-      .date()
-      .required(),
+//     dateOfBirth: Joi
+//       .date()
+//       .required(),
 
-    username: Joi
-      .string()
-      .max(15)
-      .required()
-  })
-  .xor('email', 'phone');
+//     username: Joi
+//       .string()
+//       .max(15)
+//       .required()
+//   })
+//   .xor('email', 'phone');
 
 @Entity('users')
 export class User {
