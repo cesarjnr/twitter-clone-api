@@ -15,7 +15,7 @@ class Application {
 
       await createConnection();
       await import('./dependencies');
-      await this.runScripts();
+      // await this.runScripts();
       await this.startGraphQlServer();
 
       this.app.listen(config.common.port);

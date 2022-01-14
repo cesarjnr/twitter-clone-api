@@ -3,11 +3,13 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/controllers/*.{ts,js}',
-    'src/middlewares/*.{ts,js}',
-    'src/models/*.{ts,js}',
-    'src/scripts/*.{ts,js}',
-    'src/services/*.{ts,js}'
+    'src/controllers/*.ts',
+    'src/middlewares/*.ts',
+    'src/models/*.ts}',
+    'src/scripts/*.ts',
+    'src/services/*.ts',
+    'src/utils/*.ts',
+    '!src/utils/logger.ts'
   ],
   clearMocks: true
 }

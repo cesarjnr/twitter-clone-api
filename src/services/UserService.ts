@@ -1,5 +1,5 @@
 import { Service, Inject } from 'typedi';
-import { Repository, EntityManager } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { User } from '../models/User';
 import { CacheService } from '../interfaces/CacheService';
@@ -27,18 +27,18 @@ export class UserService {
     this.cacheService = cacheService;
   }
 
-  public async create(requestPayload: UserCreationDTO): Promise<User> {
+  public async create(userCreatioDto: UserCreationDTO): Promise<User> {
     let user = new User(
-      requestPayload.name,
-      requestPayload.password,
-      requestPayload.dateOfBirth,
-      requestPayload.username,
-      requestPayload.email,
-      requestPayload.phone
+      userCreatioDto.name,
+      userCreatioDto.password,
+      userCreatioDto.dateOfBirth,
+      userCreatioDto.username,
+      userCreatioDto.email,
+      userCreatioDto.phone
     );
 
     await this.userRepository.manager.transaction(async manager => {
-      user = await this.persistInDatabase(manager, user);
+      user = await manager.save<User>(user);
 
       await this.saveInCache(user);
     });
@@ -49,6 +49,9 @@ export class UserService {
   public async find(id: number): Promise<User> {
     const user = await this.cacheService.getHash<User>(`user:${id}:data`);
 
+    // If the hash is not found in cache, null will be returned. So, we need to search for the user in the database
+    // If the user is not found in the database, we must throw an error
+
     return {
       ...user,
       id: Number(user.id),
@@ -56,18 +59,6 @@ export class UserService {
       createdAt: new Date(Number(user.createdAt)),
       disabledAt: new Date(Number(user.disabledAt))
     };
-  }
-
-  private async persistInDatabase(manager: EntityManager, user: User): Promise<User> {
-    const insertResult = await manager
-      .getRepository(User)
-      .createQueryBuilder()
-      .insert()
-      .values(user)
-      .returning("*")
-      .execute();
-
-    return insertResult.generatedMaps[0] as User;
   }
 
   private async saveInCache(user: User): Promise<void> {
@@ -79,10 +70,6 @@ export class UserService {
 
   private prepareObjectForCaching(user: User): ObjectWithoutNullishValues<User> {
     const userWithoutNullishValues = removeNullishValues<User>(user);
-
-    if (user.disabledAt) {
-      userWithoutNullishValues.disabledAt = user.disabledAt.getTime();
-    }
 
     return {
       ...userWithoutNullishValues,

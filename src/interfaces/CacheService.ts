@@ -8,5 +8,5 @@ export type HashValues<T> = {
 
 export interface CacheService {
   setHash<T>(key: string, data: HashInput<T>): Promise<void>;
-  getHash<T extends object>(key: string): Promise<HashValues<T>>;
+  getHash<T extends object>(key: string): Promise<HashValues<T>/*  | null */>;
 }
