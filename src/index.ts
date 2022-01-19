@@ -4,7 +4,6 @@ import { createConnection } from 'typeorm';
 
 import config from './config';
 import logger from './utils/logger';
-import { importDatabaseDataToRedis } from './scripts/importDatabaseDataToRedis';
 
 class Application {
   static app: Express;
@@ -15,7 +14,6 @@ class Application {
 
       await createConnection();
       await import('./dependencies');
-      // await this.runScripts();
       await this.startGraphQlServer();
 
       this.app.listen(config.common.port);
@@ -37,12 +35,6 @@ class Application {
 
     await graphqlServer.start();
     graphqlServer.applyMiddleware({ app: this.app });
-  }
-
-  static async runScripts(): Promise<void> {
-    if (process.env.ENV === 'development') {
-      await importDatabaseDataToRedis();
-    }
   }
 }
 
