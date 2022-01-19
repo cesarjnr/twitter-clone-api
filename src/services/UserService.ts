@@ -1,8 +1,8 @@
 import { Service, Inject } from 'typedi';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 
 import { User } from '../models/User';
-import { CacheService } from '../interfaces/CacheService';
+import { CacheService, HashValues } from '../interfaces/CacheService';
 import { ObjectWithoutNullishValues, removeNullishValues } from '../utils/object';
 
 export interface UserCreationDTO {
@@ -47,10 +47,11 @@ export class UserService {
   }
 
   public async find(id: number): Promise<User> {
-    const user = await this.cacheService.getHash<User>(`user:${id}:data`);
+    let user: HashValues<User> | User | null | undefined = await this.cacheService.getHash<User>(`user:${id}:data`);
 
-    // If the hash is not found in cache, null will be returned. So, we need to search for the user in the database
-    // If the user is not found in the database, we must throw an error
+    if (!user) {
+      user = await this.userRepository.findOneOrFail(id);
+    }
 
     return {
       ...user,
