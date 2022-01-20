@@ -3,17 +3,19 @@ import { ApolloError } from 'apollo-server-express';
 
 import logger from '../../../utils/logger';
 import { UserCreationDTO, UserService } from '../../../services/UserService';
+import { Optional } from '../../../utils/types';
 import { User } from '../../../models/User';
 
 const userMutations = {
   createUser: async (
     _: any,
     { user }: { user: UserCreationDTO }
-  ): Promise<Omit<User, 'password'> | void> => {
+  ): Promise<Optional<User, 'password'> | undefined> => {
     try {
     const userService = Container.get<UserService>('userService');
-    let newUser = await userService.create(user);
-    newUser = Object.assign({}, newUser, { password: undefined });
+    const newUser = await userService.create(user);
+
+    Object.assign(newUser, { password: undefined });
 
     return newUser;
     } catch (error: any) {
@@ -22,7 +24,7 @@ const userMutations = {
         message: error.message
       });
 
-      new ApolloError('Internal server error');
+      throw new ApolloError('Internal server error');
     }
   }
 };

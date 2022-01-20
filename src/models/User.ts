@@ -5,37 +5,6 @@ import {
   CreateDateColumn
 } from 'typeorm';
 
-// export const createUserValidatorSchema = Joi
-//   .object({
-//     name: Joi
-//       .string()
-//       .max(50)
-//       .required(),
-
-//     email: Joi
-//       .string()
-//       .email(),
-
-//     phone: Joi
-//       .string(),
-
-//     password: Joi
-//       .string()
-//       .min(6)
-//       .max(16)
-//       .required(),
-
-//     dateOfBirth: Joi
-//       .date()
-//       .required(),
-
-//     username: Joi
-//       .string()
-//       .max(15)
-//       .required()
-//   })
-//   .xor('email', 'phone');
-
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()

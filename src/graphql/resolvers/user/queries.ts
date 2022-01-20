@@ -1,30 +1,29 @@
 import { Container } from 'typedi';
-import { format } from 'date-fns';
 import { EntityNotFoundError } from 'typeorm';
 import { ApolloError } from 'apollo-server-express';
 
 import logger from '../../../utils/logger';
 import { User } from '../../../models/User';
+import { Optional } from '../../../utils/types';
 import { UserService } from '../../../services/UserService';
+import { formatUTCDate } from '../../../utils/date';
 import { ENTITY_NOT_FOUND } from '../errorCodes';
+
+type FindUserDTO = Omit<Optional<User, 'password'>, 'dateOfBirth'> & { dateOfBirth: string };
 
 const userQueries = {
   findUser: async(
     _: any,
     { id }: { id: number }
-  ): Promise<Omit<User, 'password'> | void> => {
+  ): Promise<FindUserDTO | void> => {
     try {
       const userService = Container.get<UserService>('userService');
-      let user = await userService.find(id);
-      user = Object.assign(
-        user,
-        {
-          password: undefined,
-          dateOfBirth: format(user.dateOfBirth, 'yyyy-MM-dd')
-        }
-      );
+      const { password, dateOfBirth, ...rest } = await userService.find(id);
 
-      return user;
+      return {
+        ...rest,
+        dateOfBirth: formatUTCDate(dateOfBirth)
+      }
     } catch (error: any) {
       logger.error({
         label: 'FindUser',

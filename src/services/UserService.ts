@@ -53,13 +53,12 @@ export class UserService {
       user = await this.userRepository.findOneOrFail(id);
     }
 
-    return {
-      ...user,
+    return Object.assign(user, {
       id: Number(user.id),
-      dateOfBirth: new Date(Number(user.dateOfBirth)),
-      createdAt: new Date(Number(user.createdAt)),
-      disabledAt: new Date(Number(user.disabledAt))
-    };
+      dateOfBirth: typeof user.dateOfBirth === 'string' ? new Date(Number(user.dateOfBirth)) : user.dateOfBirth,
+      createdAt: typeof user.createdAt === 'string' ? new Date(Number(user.createdAt)) : user.createdAt,
+      disabledAt: typeof user.disabledAt === 'string' ? new Date(Number(user.disabledAt)) : user.disabledAt
+    });
   }
 
   private async saveInCache(user: User): Promise<void> {

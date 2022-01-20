@@ -10,6 +10,10 @@ describe('UserService', () => {
   const mockCacheService = {} as jest.Mocked<CacheService>;
   const userService = new UserService(mockUserRepository, mockCacheService);
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   describe('create', () => {
     it('Should create a user', async () => {
       const userCreationDto: UserCreationDTO = {
@@ -62,6 +66,60 @@ describe('UserService', () => {
           createdAt: userCreatedAt.getTime()
         }
       );
+    });
+  });
+
+  describe('find', () => {
+    const userId = faker.datatype.number(100);
+
+    it('Should find a user in cache', async () => {
+      const user = {
+        id: `${userId}`,
+        name: faker.name.findName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        dateOfBirth: `${faker.date.past().getTime()}`,
+        username: faker.internet.userName(),
+        createdAt: `${faker.date.past().getTime()}`,
+        disabledAt: `${faker.date.past().getTime()}`
+      };
+
+      mockCacheService.getHash = jest.fn().mockResolvedValue(user);
+      mockUserRepository.findOneOrFail = jest.fn();
+
+      const foundUser = await userService.find(userId);
+
+      expect(foundUser).toStrictEqual({
+        ...user,
+        id: Number(user.id),
+        dateOfBirth: new Date(Number(user.dateOfBirth)),
+        createdAt: new Date(Number(user.createdAt)),
+        disabledAt: new Date(Number(user.disabledAt))
+      });
+      expect(mockCacheService.getHash).toHaveBeenCalledWith(`user:${userId}:data`);
+      expect(mockUserRepository.findOneOrFail).not.toHaveBeenCalled();
+    });
+
+    it('Should find a user in database', async () => {
+      const user = new User(
+        faker.name.findName(),
+        faker.internet.password(),
+        '2022-01-19',
+        faker.internet.userName(),
+        faker.internet.email()
+      );
+
+      user.id = userId;
+      user.createdAt = faker.date.past();
+      user.disabledAt = faker.date.past();
+      mockCacheService.getHash = jest.fn().mockResolvedValue(null);
+      mockUserRepository.findOneOrFail = jest.fn().mockResolvedValue(user);
+
+      const foundUser = await userService.find(userId);
+
+      expect(foundUser).toStrictEqual(user);
+      expect(mockCacheService.getHash).toHaveBeenCalledWith(`user:${userId}:data`);
+      expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith(userId);
     });
   });
 });

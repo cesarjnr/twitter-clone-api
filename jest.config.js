@@ -3,13 +3,12 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/controllers/*.ts',
-    'src/middlewares/*.ts',
-    'src/models/*.ts}',
-    'src/scripts/*.ts',
-    'src/services/*.ts',
-    'src/utils/*.ts',
+    'src/**/*.ts',
+    '!src/*.ts',
+    '!src/graphql/*.ts',
+    '!src/graphql/typedefs/*.graphql',
+    '!src/graphql/resolvers/*.ts',
+    '!src/graphql/resolvers/**/index.ts',
     '!src/utils/logger.ts'
-  ],
-  clearMocks: true
+  ]
 }
