@@ -1,8 +1,10 @@
 import { Service, Inject } from 'typedi';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
+import { hash } from 'bcrypt';
 
 import { User } from '../models/User';
 import { CacheService, HashValues } from '../interfaces/CacheService';
+import { ConflictError, EntityNotFoundError } from '../utils/error';
 import { ObjectWithoutNullishValues, removeNullishValues } from '../utils/object';
 
 export interface UserCreationDTO {
@@ -27,14 +29,17 @@ export class UserService {
     this.cacheService = cacheService;
   }
 
-  public async create(userCreatioDto: UserCreationDTO): Promise<User> {
+  public async create(userCreationDto: UserCreationDTO): Promise<User> {
+    await this.checkIfUserAlreadyExists(userCreationDto);
+
+    const passwordHash = await this.generateHash(userCreationDto.password);
     let user = new User(
-      userCreatioDto.name,
-      userCreatioDto.password,
-      userCreatioDto.dateOfBirth,
-      userCreatioDto.username,
-      userCreatioDto.email,
-      userCreatioDto.phone
+      userCreationDto.name,
+      passwordHash,
+      userCreationDto.dateOfBirth,
+      userCreationDto.username,
+      userCreationDto.email,
+      userCreationDto.phone
     );
 
     await this.userRepository.manager.transaction(async manager => {
@@ -50,7 +55,11 @@ export class UserService {
     let user: HashValues<User> | User | null | undefined = await this.cacheService.getHash<User>(`user:${id}:data`);
 
     if (!user) {
-      user = await this.userRepository.findOneOrFail(id);
+      user = await this.userRepository.findOne(id);
+
+      if (!user) {
+        throw new EntityNotFoundError('User not found');
+      }
     }
 
     return Object.assign(user, {
@@ -59,6 +68,31 @@ export class UserService {
       createdAt: typeof user.createdAt === 'string' ? new Date(Number(user.createdAt)) : user.createdAt,
       disabledAt: typeof user.disabledAt === 'string' ? new Date(Number(user.disabledAt)) : user.disabledAt
     });
+  }
+
+  private async checkIfUserAlreadyExists(userCreationDto: UserCreationDTO): Promise<void> {
+    const findConditions: FindConditions<User> = {};
+    let fieldUsed: string;
+
+    if (userCreationDto.email) {
+      Object.assign(findConditions, { email: userCreationDto.email });
+      fieldUsed = 'Email';
+    } else {
+      Object.assign(findConditions, { phone: userCreationDto.phone });
+      fieldUsed = 'Phone';
+    }
+
+    const user = await this.userRepository.findOne(findConditions);
+
+    if (user) {
+      throw new ConflictError(`${fieldUsed} already used`);
+    }
+  }
+
+  private async generateHash(password: string): Promise<string> {
+    const rounds = 10;
+
+    return await hash(password, rounds);
   }
 
   private async saveInCache(user: User): Promise<void> {
