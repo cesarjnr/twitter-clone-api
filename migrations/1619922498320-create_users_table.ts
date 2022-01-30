@@ -28,8 +28,7 @@ export class createUsersTable1619922498320 implements MigrationInterface {
         },
         {
           name: 'password',
-          type: 'varchar',
-          length: '16'
+          type: 'varchar'
         },
         {
           name: 'date_of_birth',
