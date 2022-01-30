@@ -1,10 +1,9 @@
 import { Container } from 'typedi';
-import { ApolloError } from 'apollo-server-express';
 
-import logger from '../../../utils/logger';
 import { UserCreationDTO, UserService } from '../../../services/UserService';
 import { Optional } from '../../../utils/types';
 import { User } from '../../../models/User';
+import { handleError } from '../../../utils/error';
 
 const userMutations = {
   createUser: async (
@@ -19,12 +18,7 @@ const userMutations = {
 
     return newUser;
     } catch (error: any) {
-      logger.error({
-        label: 'FindUser',
-        message: error.message
-      });
-
-      throw new ApolloError('Internal server error');
+      handleError('CreateUser', error);
     }
   }
 };

@@ -1,17 +1,19 @@
 import faker from 'faker';
-import { EntityNotFoundError } from 'typeorm';
+import { Container } from 'typedi';
+import { ApolloError } from 'apollo-server-express';
 
+import logger from '../../../../src/utils/logger';
 import userQueries from '../../../../src/graphql/resolvers/user/queries';
 import { UserService } from '../../../../src/services/UserService';
-import { Container } from 'typedi';
 import { User } from "../../../../src/models/User";
-import { ApolloError } from 'apollo-server-express';
+import { ErrorCodes, EntityNotFoundError } from '../../../../src/utils/error';
 
 jest.mock('../../../../src/services/UserService');
 jest.mock('../../../../src/utils/logger');
 
 describe('userQueries', () => {
   const mockUserService = {} as jest.Mocked<UserService>;
+  const mockLogger = logger as jest.Mocked<typeof logger>;
 
   beforeEach(() => {
     Container.get = jest.fn().mockReturnValue(mockUserService);
@@ -52,21 +54,23 @@ describe('userQueries', () => {
     });
 
     it('Should catch an EntityNotFoundError exception and throw the ApolloError exception with the message "User not found"', async () => {
-      const thrownError = new ApolloError('User not found');
+      const thrownError = new ApolloError('User not found', ErrorCodes.EntityNotFound);
 
-      mockUserService.find = jest.fn().mockRejectedValue(new EntityNotFoundError(User, {}));
+      mockUserService.find = jest.fn().mockRejectedValue(new EntityNotFoundError('User not found'));
 
       await expect(userQueries.findUser({}, { id: userId })).rejects.toStrictEqual(thrownError);
       expect(mockUserService.find).toHaveBeenCalledWith(userId);
+      expect(mockLogger.error).toHaveBeenCalledWith({ label: 'FindUser', message: thrownError.message });
     });
 
     it('Should catch some exception and throw the ApolloError exception with the message "Internal server error"', async () => {
-      const thrownError = new ApolloError('Internal server error');
+      const thrownError = new ApolloError('Internal server error', ErrorCodes.InternalServerError);
 
       mockUserService.find = jest.fn().mockRejectedValue(new Error('Some error message'));
 
       await expect(userQueries.findUser({}, { id: userId })).rejects.toStrictEqual(thrownError);
       expect(mockUserService.find).toHaveBeenCalledWith(userId);
+      expect(mockLogger.error).toHaveBeenCalledWith({ label: 'FindUser', message: 'Some error message' });
     });
   });
 });

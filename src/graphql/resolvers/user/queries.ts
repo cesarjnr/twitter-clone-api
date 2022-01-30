@@ -1,13 +1,10 @@
 import { Container } from 'typedi';
-import { EntityNotFoundError } from 'typeorm';
-import { ApolloError } from 'apollo-server-express';
 
-import logger from '../../../utils/logger';
 import { User } from '../../../models/User';
 import { Optional } from '../../../utils/types';
 import { UserService } from '../../../services/UserService';
 import { formatUTCDate } from '../../../utils/date';
-import { ENTITY_NOT_FOUND } from '../errorCodes';
+import { handleError } from '../../../utils/error';
 
 type FindUserDTO = Omit<Optional<User, 'password'>, 'dateOfBirth'> & { dateOfBirth: string };
 
@@ -25,18 +22,7 @@ const userQueries = {
         dateOfBirth: formatUTCDate(dateOfBirth)
       }
     } catch (error: any) {
-      logger.error({
-        label: 'FindUser',
-        message: error.message
-      });
-
-      let errorMessage = 'Internal server error';
-
-      if (error instanceof EntityNotFoundError) {
-        errorMessage = 'User not found'
-      }
-
-      throw new ApolloError(errorMessage, ENTITY_NOT_FOUND);
+      handleError('FindUser', error);
     }
   }
 };
